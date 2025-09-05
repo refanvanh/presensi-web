@@ -9,21 +9,36 @@ function doPost(e) {
 // Function untuk handle data dari web app
 function handleWebData(e) {
   try {
+    console.log('=== handleWebData START ===');
     console.log('Web data received:', e);
+    console.log('Parameter type:', typeof e.parameter);
+    console.log('Parameter keys:', e.parameter ? Object.keys(e.parameter) : 'No parameter');
     
     // Ambil data dari parameter
     const data = e.parameter || {};
     console.log('Data from web:', data);
+    console.log('Data keys:', Object.keys(data));
     
     // Buka spreadsheet
+    console.log('Opening spreadsheet...');
     const spreadsheet = SpreadsheetApp.openById('1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY');
+    console.log('Spreadsheet opened:', spreadsheet.getName());
+    
     const sheet = spreadsheet.getSheetByName('Absensi');
+    console.log('Sheet found:', sheet ? sheet.getName() : 'Sheet not found');
+    
+    if (!sheet) {
+      throw new Error('Sheet "Absensi" not found');
+    }
     
     // Pastikan header ada
+    console.log('Checking header, last row:', sheet.getLastRow());
     if (sheet.getLastRow() === 0) {
+      console.log('Adding header...');
       sheet.getRange(1, 1, 1, 7).setValues([
         ['Tanggal', 'Waktu', 'ID Karyawan', 'Nama', 'Departemen', 'Jenis Absensi', 'Catatan']
       ]);
+      console.log('Header added');
     }
     
     // Tambahkan data baru
@@ -39,17 +54,20 @@ function handleWebData(e) {
     
     console.log('Adding row to sheet:', newRow);
     sheet.appendRow(newRow);
+    console.log('Row added successfully');
     
-    console.log('Data successfully added to spreadsheet');
-    
+    console.log('=== handleWebData SUCCESS ===');
     return ContentService
       .createTextOutput(JSON.stringify({success: true, message: 'Data berhasil disimpan', data: newRow}))
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
+    console.error('=== handleWebData ERROR ===');
     console.error('Error in handleWebData:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
     return ContentService
-      .createTextOutput(JSON.stringify({success: false, error: error.toString()}))
+      .createTextOutput(JSON.stringify({success: false, error: error.toString(), stack: error.stack}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
