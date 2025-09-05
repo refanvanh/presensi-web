@@ -73,12 +73,19 @@ function handleWebData(e) {
 }
 
 function doGet(e) {
+  console.log('=== doGet START ===');
+  console.log('doGet received:', e);
+  console.log('e type:', typeof e);
+  console.log('e parameter:', e ? e.parameter : 'e is undefined');
+  
   // Handle data dari web app
   if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+    console.log('Calling handleWebData with parameters');
     return handleWebData(e);
   }
   
   // Default response
+  console.log('Returning default response');
   return ContentService
     .createTextOutput(JSON.stringify({message: 'Google Apps Script is running', timestamp: new Date()}))
     .setMimeType(ContentService.MimeType.JSON);
@@ -119,4 +126,22 @@ function testFunction() {
   sheet.appendRow(newRow);
   console.log('Test data added:', newRow);
   return 'Test data added successfully';
+}
+
+// Test function untuk simulate web request
+function testWebRequest() {
+  const mockEvent = {
+    parameter: {
+      date: '05/09/2025',
+      time: '12:54:00',
+      employeeId: 'WEB001',
+      employeeName: 'Web Test User',
+      department: 'IT',
+      attendanceType: 'Masuk',
+      notes: 'Test dari web request'
+    }
+  };
+  
+  console.log('Testing web request with mock data:', mockEvent);
+  return handleWebData(mockEvent);
 }
