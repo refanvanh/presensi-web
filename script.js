@@ -25,8 +25,8 @@ function initializeApp() {
     // Event listener untuk form submit
     document.getElementById('submitBtn').addEventListener('click', handleSubmit);
     
-    // Load recent attendance dari localStorage
-    loadRecentAttendance();
+    // Tampilkan pesan Google Sheets
+    showGoogleSheetsMessage();
     
     // Auto-focus pada input pertama
     document.getElementById('employeeId').focus();
@@ -62,19 +62,15 @@ async function handleSubmit() {
     hideStatusMessage();
     
     try {
-        // Simpan ke localStorage untuk riwayat lokal
-        saveToLocalStorage(formData);
-        
-        // Kirim ke Google Sheets
+        // Kirim langsung ke Google Sheets
         await sendToGoogleSheets(formData);
         
-        showStatusMessage('Absensi berhasil dicatat!', 'success');
+        showStatusMessage('Absensi berhasil dicatat ke Google Sheets!', 'success');
         clearForm();
-        loadRecentAttendance();
         
     } catch (error) {
         console.error('Error:', error);
-        showStatusMessage('Gagal mengirim data. Silakan coba lagi.', 'error');
+        showStatusMessage('Gagal mengirim data ke Google Sheets. Silakan coba lagi.', 'error');
     } finally {
         showLoading(false);
     }
@@ -125,42 +121,21 @@ function validateForm(data) {
     return true;
 }
 
-// Simpan ke localStorage untuk riwayat lokal
-function saveToLocalStorage(data) {
-    const recentAttendance = JSON.parse(localStorage.getItem('recentAttendance') || '[]');
-    
-    // Tambahkan data baru di awal array
-    recentAttendance.unshift(data);
-    
-    // Batasi hanya 10 data terbaru
-    if (recentAttendance.length > 10) {
-        recentAttendance.splice(10);
-    }
-    
-    localStorage.setItem('recentAttendance', JSON.stringify(recentAttendance));
-}
-
-// Load riwayat absensi dari localStorage
-function loadRecentAttendance() {
-    const recentAttendance = JSON.parse(localStorage.getItem('recentAttendance') || '[]');
+// Function untuk menampilkan pesan bahwa data tersimpan di Google Sheets
+function showGoogleSheetsMessage() {
     const recentList = document.getElementById('recentList');
-    
-    if (recentAttendance.length === 0) {
-        recentList.innerHTML = '<p class="no-data">Belum ada data absensi</p>';
-        return;
-    }
-    
-    recentList.innerHTML = recentAttendance.map(item => `
+    recentList.innerHTML = `
         <div class="attendance-item">
             <div class="employee-info">
-                ${item.employeeName} (${item.employeeId}) - ${item.department}
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+                Data absensi tersimpan di Google Sheets
             </div>
             <div class="attendance-details">
-                <strong>${item.attendanceType}</strong> • ${item.date} ${item.time}
-                ${item.notes ? `<br><em>Catatan: ${item.notes}</em>` : ''}
+                Semua data absensi akan tersimpan secara otomatis di spreadsheet Google Sheets.
+                <br><em>Buka spreadsheet untuk melihat riwayat lengkap.</em>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
 // Kirim data ke Google Sheets
@@ -358,49 +333,5 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Auto-save draft (opsional)
-let draftTimer;
-function autoSaveDraft() {
-    clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => {
-        const formData = collectFormData();
-        if (formData.employeeId || formData.employeeName) {
-            localStorage.setItem('draftAttendance', JSON.stringify(formData));
-        }
-    }, 1000);
-}
-
-// Load draft saat halaman dimuat
-function loadDraft() {
-    const draft = localStorage.getItem('draftAttendance');
-    if (draft) {
-        const data = JSON.parse(draft);
-        document.getElementById('employeeId').value = data.employeeId || '';
-        document.getElementById('employeeName').value = data.employeeName || '';
-        document.getElementById('department').value = data.department || '';
-        document.getElementById('attendanceType').value = data.attendanceType || '';
-        document.getElementById('notes').value = data.notes || '';
-    }
-}
-
-// Event listeners untuk auto-save draft
-document.getElementById('employeeId').addEventListener('input', autoSaveDraft);
-document.getElementById('employeeName').addEventListener('input', autoSaveDraft);
-document.getElementById('department').addEventListener('change', autoSaveDraft);
-document.getElementById('attendanceType').addEventListener('change', autoSaveDraft);
-document.getElementById('notes').addEventListener('input', autoSaveDraft);
-
-// Load draft saat inisialisasi
-loadDraft();
-
-// Clear draft setelah submit berhasil
-function clearDraft() {
-    localStorage.removeItem('draftAttendance');
-}
-
-// Update clearForm untuk juga clear draft
-const originalClearForm = clearForm;
-clearForm = function() {
-    originalClearForm();
-    clearDraft();
-};
+// Semua data langsung tersimpan ke Google Sheets
+// Tidak perlu localStorage atau draft functionality
