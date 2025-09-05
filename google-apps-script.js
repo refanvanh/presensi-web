@@ -2,29 +2,18 @@
 // Copy kode ini ke Google Apps Script (script.google.com)
 
 function doPost(e) {
+  // Panggil handleWebData function
+  return handleWebData(e);
+}
+
+// Function untuk handle data dari web app
+function handleWebData(e) {
   try {
-    console.log('Received data:', e);
+    console.log('Web data received:', e);
     
-    // Parse data yang dikirim dari web - hanya gunakan parameter
-    let data = {};
-    
-    if (e && e.parameter) {
-      console.log('Using parameter directly');
-      data = e.parameter;
-    } else {
-      console.log('No parameter found, using test data');
-      data = {
-        date: new Date().toLocaleDateString('id-ID'),
-        time: new Date().toLocaleTimeString('id-ID'),
-        employeeId: 'TEST001',
-        employeeName: 'Test User',
-        department: 'IT',
-        attendanceType: 'Masuk',
-        notes: 'Test dari Apps Script'
-      };
-    }
-    
-    console.log('Parsed data:', data);
+    // Ambil data dari parameter
+    const data = e.parameter || {};
+    console.log('Data from web:', data);
     
     // Buka spreadsheet
     const spreadsheet = SpreadsheetApp.openById('1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY');
@@ -58,7 +47,7 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in handleWebData:', error);
     return ContentService
       .createTextOutput(JSON.stringify({success: false, error: error.toString()}))
       .setMimeType(ContentService.MimeType.JSON);
@@ -66,6 +55,12 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  // Handle data dari web app
+  if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+    return handleWebData(e);
+  }
+  
+  // Default response
   return ContentService
     .createTextOutput(JSON.stringify({message: 'Google Apps Script is running', timestamp: new Date()}))
     .setMimeType(ContentService.MimeType.JSON);
