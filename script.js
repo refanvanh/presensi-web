@@ -7,7 +7,8 @@ const CONFIG = {
     // API key untuk akses Google Sheets
     API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0',
     // URL Google Apps Script (alternatif yang lebih mudah)
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby3QInBvHfLMOmDIi0haDhzhd6jTYS_lZ5L0WgMjFVXe7HKJFdn-7FiTODjnkX1tKf6-Q/exec',
+    // Ganti dengan URL deployment yang benar
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyvqVYAf2Z1Op6dVZSwmZMNe-Ii-MMawUsgtgQKT3oKge5o-bcPCWbLojlijzJUnEZK/exec',
     // Gunakan Apps Script atau Google Sheets API
     USE_APPS_SCRIPT: true
 };
