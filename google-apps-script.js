@@ -2,8 +2,20 @@
 // Copy kode ini ke Google Apps Script (script.google.com)
 
 function doPost(e) {
-  // Panggil handleWebData function
-  return handleWebData(e);
+  console.log('=== doPost START ===');
+  console.log('doPost received:', e);
+  console.log('e type:', typeof e);
+  
+  // Panggil handleWebData function dengan parameter yang benar
+  if (e && e.parameter) {
+    console.log('doPost calling handleWebData with parameters');
+    return handleWebData(e);
+  } else {
+    console.log('doPost: No parameters, returning error');
+    return ContentService
+      .createTextOutput(JSON.stringify({success: false, error: 'No parameters received'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 // Function untuk handle data dari web app
@@ -11,11 +23,17 @@ function handleWebData(e) {
   try {
     console.log('=== handleWebData START ===');
     console.log('Web data received:', e);
+    console.log('e type:', typeof e);
     console.log('Parameter type:', typeof e.parameter);
     console.log('Parameter keys:', e.parameter ? Object.keys(e.parameter) : 'No parameter');
     
+    // Validasi parameter
+    if (!e || !e.parameter) {
+      throw new Error('Invalid parameter: e or e.parameter is undefined');
+    }
+    
     // Ambil data dari parameter
-    const data = e.parameter || {};
+    const data = e.parameter;
     console.log('Data from web:', data);
     console.log('Data keys:', Object.keys(data));
     
@@ -144,4 +162,22 @@ function testWebRequest() {
   
   console.log('Testing web request with mock data:', mockEvent);
   return handleWebData(mockEvent);
+}
+
+// Test function untuk simulate doPost
+function testDoPost() {
+  const mockEvent = {
+    parameter: {
+      date: '05/09/2025',
+      time: '12:56:00',
+      employeeId: 'POST001',
+      employeeName: 'Post Test User',
+      department: 'IT',
+      attendanceType: 'Masuk',
+      notes: 'Test dari doPost'
+    }
+  };
+  
+  console.log('Testing doPost with mock data:', mockEvent);
+  return doPost(mockEvent);
 }
