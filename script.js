@@ -205,7 +205,17 @@ async function sendToGoogleSheets(data) {
         
     } catch (error) {
         console.error('Error sending to Google Sheets:', error);
-        throw error;
+        
+        // Berikan pesan error yang lebih spesifik
+        if (error.message.includes('401')) {
+            throw new Error('API Key tidak valid atau tidak memiliki permission. Silakan periksa konfigurasi Google Sheets API.');
+        } else if (error.message.includes('403')) {
+            throw new Error('Akses ditolak. Pastikan spreadsheet dapat diakses dan API Key sudah benar.');
+        } else if (error.message.includes('404')) {
+            throw new Error('Spreadsheet tidak ditemukan. Pastikan Spreadsheet ID sudah benar.');
+        } else {
+            throw new Error('Terjadi kesalahan saat mengirim data ke Google Sheets: ' + error.message);
+        }
     }
 }
 

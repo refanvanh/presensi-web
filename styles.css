@@ -5,6 +5,21 @@
     box-sizing: border-box;
 }
 
+/* Modern forced colors mode support */
+@media (forced-colors: active) {
+    .attendance-form,
+    .status-section,
+    .recent-attendance {
+        border: 1px solid ButtonText;
+    }
+    
+    .submit-btn {
+        background: ButtonFace;
+        color: ButtonText;
+        border: 1px solid ButtonText;
+    }
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

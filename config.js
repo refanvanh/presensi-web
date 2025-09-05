@@ -5,7 +5,7 @@ const GOOGLE_SHEETS_CONFIG = {
     // ID Spreadsheet - dapatkan dari URL spreadsheet Anda
     // Contoh: https://docs.google.com/spreadsheets/d/1ABC123DEF456GHI789JKL/edit
     // ID-nya adalah: 1ABC123DEF456GHI789JKL
-    SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID_HERE',
+    SPREADSHEET_ID: '1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY',
     
     // Nama sheet (tab) di spreadsheet Anda
     SHEET_NAME: 'Absensi',
@@ -17,7 +17,7 @@ const GOOGLE_SHEETS_CONFIG = {
     // 3. Enable Google Sheets API
     // 4. Buat API Key di Credentials
     // 5. Restrict API Key ke Google Sheets API
-    API_KEY: 'YOUR_API_KEY_HERE',
+    API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0',
     
     // Range untuk menulis data (opsional, default akan otomatis)
     RANGE: 'A:G'
