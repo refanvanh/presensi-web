@@ -12,10 +12,20 @@ function doPost(e) {
       data = e.parameter;
     } else if (e && e.postData && e.postData.contents) {
       console.log('Using postData.contents');
-      data = JSON.parse(e.postData.contents);
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (parseError) {
+        console.log('JSON parse failed, using postData.contents as string');
+        data = e.postData.contents;
+      }
     } else if (e && e.parameter && e.parameter.data) {
       console.log('Using parameter.data');
-      data = JSON.parse(e.parameter.data);
+      try {
+        data = JSON.parse(e.parameter.data);
+      } catch (parseError) {
+        console.log('JSON parse failed, using parameter.data as string');
+        data = e.parameter.data;
+      }
     } else {
       console.log('No data found, using test data');
       data = {
@@ -44,19 +54,22 @@ function doPost(e) {
     
     // Tambahkan data baru
     const newRow = [
-      data.date,
-      data.time,
-      data.employeeId,
-      data.employeeName,
-      data.department,
-      data.attendanceType,
+      data.date || new Date().toLocaleDateString('id-ID'),
+      data.time || new Date().toLocaleTimeString('id-ID'),
+      data.employeeId || 'UNKNOWN',
+      data.employeeName || 'UNKNOWN',
+      data.department || 'UNKNOWN',
+      data.attendanceType || 'UNKNOWN',
       data.notes || ''
     ];
     
+    console.log('Adding row to sheet:', newRow);
     sheet.appendRow(newRow);
     
+    console.log('Data successfully added to spreadsheet');
+    
     return ContentService
-      .createTextOutput(JSON.stringify({success: true, message: 'Data berhasil disimpan'}))
+      .createTextOutput(JSON.stringify({success: true, message: 'Data berhasil disimpan', data: newRow}))
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
