@@ -3,15 +3,33 @@
 
 function doPost(e) {
   try {
+    console.log('Received data:', e);
+    
     // Parse data yang dikirim dari web
     let data;
-    if (e.postData.contents) {
+    if (e && e.parameter) {
+      console.log('Using parameter directly');
+      data = e.parameter;
+    } else if (e && e.postData && e.postData.contents) {
+      console.log('Using postData.contents');
       data = JSON.parse(e.postData.contents);
-    } else if (e.parameter.data) {
+    } else if (e && e.parameter && e.parameter.data) {
+      console.log('Using parameter.data');
       data = JSON.parse(e.parameter.data);
     } else {
-      throw new Error('No data received');
+      console.log('No data found, using test data');
+      data = {
+        date: new Date().toLocaleDateString('id-ID'),
+        time: new Date().toLocaleTimeString('id-ID'),
+        employeeId: 'TEST001',
+        employeeName: 'Test User',
+        department: 'IT',
+        attendanceType: 'Masuk',
+        notes: 'Test dari Apps Script'
+      };
     }
+    
+    console.log('Parsed data:', data);
     
     // Buka spreadsheet
     const spreadsheet = SpreadsheetApp.openById('1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY');

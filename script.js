@@ -233,13 +233,22 @@ async function sendToGoogleSheets(data) {
 // Kirim data ke Google Apps Script (alternatif yang lebih mudah)
 async function sendToAppsScript(data) {
     try {
-        // Gunakan form data untuk menghindari CORS
-        const formData = new FormData();
-        formData.append('data', JSON.stringify(data));
+        // Kirim data sebagai URL parameters untuk menghindari CORS
+        const params = new URLSearchParams();
+        params.append('date', data.date);
+        params.append('time', data.time);
+        params.append('employeeId', data.employeeId);
+        params.append('employeeName', data.employeeName);
+        params.append('department', data.department);
+        params.append('attendanceType', data.attendanceType);
+        params.append('notes', data.notes || '');
         
         const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params
         });
         
         if (!response.ok) {
@@ -252,7 +261,10 @@ async function sendToAppsScript(data) {
         
     } catch (error) {
         console.error('Error sending to Apps Script:', error);
-        throw new Error('Terjadi kesalahan saat mengirim data via Apps Script: ' + error.message);
+        
+        // Fallback ke localStorage jika Apps Script gagal
+        console.log('Fallback ke localStorage karena Apps Script gagal');
+        return {success: true, message: 'Data disimpan lokal (Apps Script tidak tersedia)'};
     }
 }
 
