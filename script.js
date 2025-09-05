@@ -1,11 +1,11 @@
 // Konfigurasi Google Sheets
 const CONFIG = {
-    // Ganti dengan ID spreadsheet Anda
-    SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID_HERE',
-    // Ganti dengan nama sheet (tab) di spreadsheet
+    // ID spreadsheet Anda
+    SPREADSHEET_ID: '1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY',
+    // Nama sheet (tab) di spreadsheet
     SHEET_NAME: 'Absensi',
-    // Ganti dengan API key Anda (untuk public access)
-    API_KEY: 'YOUR_API_KEY_HERE'
+    // API key untuk akses Google Sheets
+    API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0'
 };
 
 // Inisialisasi aplikasi
