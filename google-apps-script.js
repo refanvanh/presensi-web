@@ -5,29 +5,14 @@ function doPost(e) {
   try {
     console.log('Received data:', e);
     
-    // Parse data yang dikirim dari web
-    let data;
+    // Parse data yang dikirim dari web - hanya gunakan parameter
+    let data = {};
+    
     if (e && e.parameter) {
       console.log('Using parameter directly');
       data = e.parameter;
-    } else if (e && e.postData && e.postData.contents) {
-      console.log('Using postData.contents');
-      try {
-        data = JSON.parse(e.postData.contents);
-      } catch (parseError) {
-        console.log('JSON parse failed, using postData.contents as string');
-        data = e.postData.contents;
-      }
-    } else if (e && e.parameter && e.parameter.data) {
-      console.log('Using parameter.data');
-      try {
-        data = JSON.parse(e.parameter.data);
-      } catch (parseError) {
-        console.log('JSON parse failed, using parameter.data as string');
-        data = e.parameter.data;
-      }
     } else {
-      console.log('No data found, using test data');
+      console.log('No parameter found, using test data');
       data = {
         date: new Date().toLocaleDateString('id-ID'),
         time: new Date().toLocaleTimeString('id-ID'),
@@ -84,4 +69,41 @@ function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({message: 'Google Apps Script is running', timestamp: new Date()}))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Test function untuk debugging
+function testFunction() {
+  const testData = {
+    date: '05/09/2025',
+    time: '12:45:00',
+    employeeId: 'TEST001',
+    employeeName: 'Test User',
+    department: 'IT',
+    attendanceType: 'Masuk',
+    notes: 'Test dari Apps Script'
+  };
+  
+  const spreadsheet = SpreadsheetApp.openById('1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY');
+  const sheet = spreadsheet.getSheetByName('Absensi');
+  
+  // Pastikan header ada
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, 7).setValues([
+      ['Tanggal', 'Waktu', 'ID Karyawan', 'Nama', 'Departemen', 'Jenis Absensi', 'Catatan']
+    ]);
+  }
+  
+  const newRow = [
+    testData.date,
+    testData.time,
+    testData.employeeId,
+    testData.employeeName,
+    testData.department,
+    testData.attendanceType,
+    testData.notes
+  ];
+  
+  sheet.appendRow(newRow);
+  console.log('Test data added:', newRow);
+  return 'Test data added successfully';
 }
