@@ -25,8 +25,8 @@ function initializeApp() {
     // Event listener untuk form submit
     document.getElementById('submitBtn').addEventListener('click', handleSubmit);
     
-    // Tampilkan pesan Google Sheets
-    showGoogleSheetsMessage();
+    // Load data terbaru dari Google Sheets
+    loadRecentAttendanceFromSheets();
     
     // Auto-focus pada input pertama
     document.getElementById('employeeId').focus();
@@ -67,6 +67,11 @@ async function handleSubmit() {
         
         showStatusMessage('Absensi berhasil dicatat ke Google Sheets!', 'success');
         clearForm();
+        
+        // Refresh data terbaru dari Google Sheets
+        setTimeout(() => {
+            loadRecentAttendanceFromSheets();
+        }, 1000);
         
     } catch (error) {
         console.error('Error:', error);
@@ -119,6 +124,71 @@ function validateForm(data) {
     }
     
     return true;
+}
+
+// Function untuk mengambil data terbaru dari Google Sheets
+async function loadRecentAttendanceFromSheets() {
+    try {
+        // Ambil data dari Google Sheets menggunakan API
+        const response = await fetch(
+            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}!A:G?key=${CONFIG.API_KEY}`
+        );
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const values = data.values || [];
+        
+        // Skip header row (baris pertama)
+        const attendanceData = values.slice(1);
+        
+        // Tampilkan data terbaru (maksimal 5 data terakhir)
+        const recentData = attendanceData.slice(-5).reverse();
+        
+        displayRecentAttendance(recentData);
+        
+    } catch (error) {
+        console.error('Error loading data from Google Sheets:', error);
+        showGoogleSheetsMessage();
+    }
+}
+
+// Function untuk menampilkan data absensi terbaru
+function displayRecentAttendance(data) {
+    const recentList = document.getElementById('recentList');
+    
+    if (data.length === 0) {
+        recentList.innerHTML = `
+            <div class="attendance-item">
+                <div class="employee-info">
+                    <i class="fas fa-info-circle" style="color: #17a2b8; margin-right: 8px;"></i>
+                    Belum ada data absensi
+                </div>
+                <div class="attendance-details">
+                    Data absensi akan muncul di sini setelah ada yang melakukan absensi.
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    recentList.innerHTML = data.map(row => {
+        const [date, time, employeeId, employeeName, department, attendanceType, notes] = row;
+        return `
+            <div class="attendance-item">
+                <div class="employee-info">
+                    <i class="fas fa-user" style="color: #667eea; margin-right: 8px;"></i>
+                    ${employeeName} (${employeeId}) - ${department}
+                </div>
+                <div class="attendance-details">
+                    <strong>${attendanceType}</strong> • ${date} ${time}
+                    ${notes ? `<br><em>Catatan: ${notes}</em>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // Function untuk menampilkan pesan bahwa data tersimpan di Google Sheets
