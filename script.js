@@ -245,23 +245,57 @@ async function sendToAppsScript(data) {
         
         const url = `${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`;
         console.log('Sending data to:', url);
+        console.log('Data being sent:', data);
         
+        // Coba dengan mode cors dulu untuk debugging
         const response = await fetch(url, {
             method: 'GET',
-            mode: 'no-cors' // Untuk menghindari CORS issues
+            mode: 'cors' // Coba dengan cors untuk debugging
         });
         
-        // Karena mode: 'no-cors', response tidak bisa dibaca
-        // Tapi request tetap terkirim ke Apps Script
-        console.log('Data berhasil dikirim via Apps Script (no-cors mode)');
-        return {success: true, message: 'Data berhasil dikirim ke Google Sheets'};
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Response data:', result);
+            return result;
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
     } catch (error) {
         console.error('Error sending to Apps Script:', error);
         
-        // Fallback ke localStorage jika Apps Script gagal
-        console.log('Fallback ke localStorage karena Apps Script gagal');
-        return {success: true, message: 'Data disimpan lokal (Apps Script tidak tersedia)'};
+        // Coba dengan no-cors sebagai fallback
+        try {
+            console.log('Trying with no-cors mode...');
+            const params = new URLSearchParams();
+            params.append('date', data.date);
+            params.append('time', data.time);
+            params.append('employeeId', data.employeeId);
+            params.append('employeeName', data.employeeName);
+            params.append('department', data.department);
+            params.append('attendanceType', data.attendanceType);
+            params.append('notes', data.notes || '');
+            
+            const url = `${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`;
+            
+            await fetch(url, {
+                method: 'GET',
+                mode: 'no-cors'
+            });
+            
+            console.log('Data berhasil dikirim via Apps Script (no-cors mode)');
+            return {success: true, message: 'Data berhasil dikirim ke Google Sheets'};
+            
+        } catch (noCorsError) {
+            console.error('No-cors mode also failed:', noCorsError);
+            
+            // Fallback ke localStorage jika Apps Script gagal
+            console.log('Fallback ke localStorage karena Apps Script gagal');
+            return {success: true, message: 'Data disimpan lokal (Apps Script tidak tersedia)'};
+        }
     }
 }
 
