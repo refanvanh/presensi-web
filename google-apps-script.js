@@ -4,7 +4,14 @@
 function doPost(e) {
   try {
     // Parse data yang dikirim dari web
-    const data = JSON.parse(e.postData.contents);
+    let data;
+    if (e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    } else if (e.parameter.data) {
+      data = JSON.parse(e.parameter.data);
+    } else {
+      throw new Error('No data received');
+    }
     
     // Buka spreadsheet
     const spreadsheet = SpreadsheetApp.openById('1Ztx84ZaJ30UQ7vUWQU8WaXM0UF3d9JY3YMgBwvi0oHY');
@@ -44,6 +51,6 @@ function doPost(e) {
 
 function doGet(e) {
   return ContentService
-    .createTextOutput(JSON.stringify({message: 'Google Apps Script is running'}))
+    .createTextOutput(JSON.stringify({message: 'Google Apps Script is running', timestamp: new Date()}))
     .setMimeType(ContentService.MimeType.JSON);
 }

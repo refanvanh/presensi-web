@@ -7,9 +7,9 @@ const CONFIG = {
     // API key untuk akses Google Sheets
     API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0',
     // URL Google Apps Script (alternatif yang lebih mudah)
-    APPS_SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby3QInBvHfLMOmDIi0haDhzhd6jTYS_lZ5L0WgMjFVXe7HKJFdn-7FiTODjnkX1tKf6-Q/exec',
     // Gunakan Apps Script atau Google Sheets API
-    USE_APPS_SCRIPT: false
+    USE_APPS_SCRIPT: true
 };
 
 // Inisialisasi aplikasi
@@ -233,12 +233,13 @@ async function sendToGoogleSheets(data) {
 // Kirim data ke Google Apps Script (alternatif yang lebih mudah)
 async function sendToAppsScript(data) {
     try {
+        // Gunakan form data untuk menghindari CORS
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(data));
+        
         const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
+            body: formData
         });
         
         if (!response.ok) {

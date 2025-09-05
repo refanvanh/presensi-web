@@ -20,6 +20,21 @@
     }
 }
 
+/* Remove deprecated -ms-high-contrast support */
+@media screen and (-ms-high-contrast: active) {
+    .attendance-form,
+    .status-section,
+    .recent-attendance {
+        border: 1px solid windowText;
+    }
+    
+    .submit-btn {
+        background: window;
+        color: windowText;
+        border: 1px solid windowText;
+    }
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
