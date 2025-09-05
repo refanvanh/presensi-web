@@ -5,7 +5,11 @@ const CONFIG = {
     // Nama sheet (tab) di spreadsheet
     SHEET_NAME: 'Absensi',
     // API key untuk akses Google Sheets
-    API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0'
+    API_KEY: 'AIzaSyA-e41hNMHRprlpWL31MeX4xS9znrMndh0',
+    // URL Google Apps Script (alternatif yang lebih mudah)
+    APPS_SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE',
+    // Gunakan Apps Script atau Google Sheets API
+    USE_APPS_SCRIPT: false
 };
 
 // Inisialisasi aplikasi
@@ -168,6 +172,11 @@ async function sendToGoogleSheets(data) {
         return;
     }
     
+    // Gunakan Google Apps Script jika dikonfigurasi
+    if (CONFIG.USE_APPS_SCRIPT && CONFIG.APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+        return await sendToAppsScript(data);
+    }
+    
     try {
         // Format data untuk Google Sheets
         const values = [
@@ -184,7 +193,7 @@ async function sendToGoogleSheets(data) {
         
         // Kirim ke Google Sheets menggunakan API
         const response = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}!A:G:append?valueInputOption=RAW&key=${CONFIG.API_KEY}`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}!A:G:append?valueInputOption=USER_ENTERED&key=${CONFIG.API_KEY}`,
             {
                 method: 'POST',
                 headers: {
@@ -197,7 +206,9 @@ async function sendToGoogleSheets(data) {
         );
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Google Sheets API Error:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
         
         const result = await response.json();
@@ -216,6 +227,31 @@ async function sendToGoogleSheets(data) {
         } else {
             throw new Error('Terjadi kesalahan saat mengirim data ke Google Sheets: ' + error.message);
         }
+    }
+}
+
+// Kirim data ke Google Apps Script (alternatif yang lebih mudah)
+async function sendToAppsScript(data) {
+    try {
+        const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Data berhasil dikirim via Apps Script:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('Error sending to Apps Script:', error);
+        throw new Error('Terjadi kesalahan saat mengirim data via Apps Script: ' + error.message);
     }
 }
 
